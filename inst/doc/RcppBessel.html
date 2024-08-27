@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>RcppBessel: Rcpp Bessel Interface for use with Rcpp</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">RcppBessel: Rcpp Bessel Interface for use
+with Rcpp</h1>
+
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>The <code>RcppBessel</code> package exports an Rcpp interface for the
+Bessel functions found in the <code>Bessel</code> package of Maechler by
+wrapping the functions in the C code (translated and cleaned up from
+Amos’ original FORTRAN code by Maechler) into C++. Not all functionality
+is exposed, in order to keep things simple, but may be expanded in the
+future to export more of the functions such as those for the asymptotic
+expansion of BesselK and BesselI for large nu and x. The package also
+exports the functions for use in R, as it was found to offer a speed up
+of up to 10x.</p>
+<p>The initial motivation for writing this package was so as to allow
+the modified Bessel function of the second kind to be used in C++ code
+which the author needed in another package. The <a href="https://www.boost.org/doc/libs/1_85_0/libs/math/doc/html/math_toolkit/bessel/mbessel.html">Boost</a>
+implementation does not allow for complex arguments whilst the special
+math functions in <a href="https://en.cppreference.com/w/cpp/numeric/special_functions/cyl_bessel_k">std
+library</a> is not available for Mac OS (via the shipped libc++).
+Additionally, neither of those implementation has the option of
+exponential scaling.</p>
+</div>
+<div id="implementation" class="section level1">
+<h1>Implementation</h1>
+<p>The table below shows the functions currently available.</p>
+<table>
+<colgroup>
+<col width="59%" />
+<col width="40%" />
+</colgroup>
+<thead>
+<tr>
+<th><strong>RcppBessel Function</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bessel_k</code></td>
+<td>Computes the modified Bessel function of the second kind.</td>
+</tr>
+<tr>
+<td><code>bessel_y</code></td>
+<td>Computes the Bessel function of the second kind (Neumann
+function).</td>
+</tr>
+<tr>
+<td><code>bessel_h</code></td>
+<td>Computes the Hankel function (Bessel function of the third
+kind).</td>
+</tr>
+<tr>
+<td><code>bessel_i</code></td>
+<td>Computes the modified Bessel function of the first kind.</td>
+</tr>
+<tr>
+<td><code>bessel_j</code></td>
+<td>Computes the Bessel function of the first kind.</td>
+</tr>
+<tr>
+<td><code>airy_a</code></td>
+<td>Computes the Airy function of the first kind.</td>
+</tr>
+<tr>
+<td><code>airy_b</code></td>
+<td>Computes the Airy function of the second kind.</td>
+</tr>
+</tbody>
+</table>
+<p>To distinguish between the CamelCase naming in the
+<code>Bessel</code> package and the lowercamelCase naming in base R, the
+package has adopted the snake_case syntax similar to the
+<code>std</code> lib. Other than that, the arguments are the same as in
+the Bessel package with the exception of <code>nSeq</code>, which
+computes the result for a whole sequence of nu values, which we have
+opted to skip in the implementation.</p>
+<p>For real values less than zero, <code>bessel_k</code> and
+<code>bessel_y</code> return complex values. In this case, if the vector
+<code>z</code> has negative values, the whole output returned is complex
+valued. The table below shows the general input/output types
+expected.</p>
+<table>
+<thead>
+<tr>
+<th>Function Name</th>
+<th>Input for <code>z</code></th>
+<th>Output Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bessel_k</code></td>
+<td>Real (all &gt;= 0)</td>
+<td>Real</td>
+</tr>
+<tr>
+<td></td>
+<td>Real (any &lt; 0)</td>
+<td>Complex</td>
+</tr>
+<tr>
+<td></td>
+<td>Complex</td>
+<td>Complex</td>
+</tr>
+<tr>
+<td><code>bessel_y</code></td>
+<td>Real (all &gt;= 0)</td>
+<td>Real</td>
+</tr>
+<tr>
+<td></td>
+<td>Real (some &lt; 0)</td>
+<td>Complex</td>
+</tr>
+<tr>
+<td></td>
+<td>Complex</td>
+<td>Complex</td>
+</tr>
+<tr>
+<td><code>bessel_h</code></td>
+<td>Real (any value)</td>
+<td>Complex</td>
+</tr>
+<tr>
+<td></td>
+<td>Complex</td>
+<td>Complex</td>
+</tr>
+<tr>
+<td><code>bessel_i</code></td>
+<td>Real (any value)</td>
+<td>Real</td>
+</tr>
+<tr>
+<td></td>
+<td>Complex</td>
+<td>Complex</td>
+</tr>
+<tr>
+<td><code>bessel_j</code></td>
+<td>Real (any value)</td>
+<td>Real</td>
+</tr>
+<tr>
+<td></td>
+<td>Complex</td>
+<td>Complex</td>
+</tr>
+<tr>
+<td><code>airy_a</code></td>
+<td>Real (any value)</td>
+<td>Real</td>
+</tr>
+<tr>
+<td></td>
+<td>Complex</td>
+<td>Complex</td>
+</tr>
+<tr>
+<td><code>airy_b</code></td>
+<td>Real (any value)</td>
+<td>Real</td>
+</tr>
+<tr>
+<td></td>
+<td>Complex</td>
+<td>Complex</td>
+</tr>
+</tbody>
+</table>
+<p>For values of zero, the output is similar to what the
+<code>Bessel</code> package returns with the exception of
+<code>bessel_k</code> which returns <code>Inf</code> similar to base R,
+whereas <code>Bessel::BesselK</code> returns <code>0</code>.</p>
+<p>The next sections provide a individual summary of each of the
+functions and a sample <code>C++</code> code which can be pasted and
+sourced to test the results against the <code>Bessel</code> function
+implementation and also show how the package can be used inside other
+Rcpp functions.</p>
+<div id="besselk-bessel_k" class="section level2">
+<h2>BesselK (<code>bessel_k</code>)</h2>
+<div id="description" class="section level3">
+<h3>Description</h3>
+<p>Computes the modified Bessel function of the second kind.</p>
+</div>
+<div id="inputs" class="section level3">
+<h3>Inputs</h3>
+<ul>
+<li><code>z</code>: A numeric or complex vector of points at which to
+evaluate the Bessel function.</li>
+<li><code>nu</code>: A numeric value representing the order of the
+Bessel function.</li>
+<li><code>expon_scaled</code>: A logical value indicating whether to use
+the exponentially scaled form.</li>
+<li><code>verbose</code>: An integer specifying the verbosity level for
+error messages.</li>
+</ul>
+</div>
+<div id="output" class="section level3">
+<h3>Output</h3>
+<ul>
+<li>A either a numeric or complex vector (depending on the input) with
+the values of the <code>bessel_k</code> function.</li>
+</ul>
+</div>
+<div id="example" class="section level3">
+<h3>Example</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co">// test_bessel_k.cpp</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;Rcpp.h&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;RcppBessel.h&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">// [[Rcpp::depends(Rcpp, RcppBessel)]]</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">// [[Rcpp::export]]</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>SEXP test_bessel_k<span class="op">(</span>SEXP x<span class="op">,</span> <span class="dt">double</span> nu<span class="op">,</span> <span class="dt">bool</span> expon_scaled<span class="op">,</span> <span class="dt">int</span> verbose<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  SEXP z <span class="op">=</span> RcppBessel<span class="op">::</span>bessel_k<span class="op">(</span>x<span class="op">,</span> nu<span class="op">,</span> expon_scaled<span class="op">,</span> verbose<span class="op">);</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="cf">return</span> z<span class="op">;</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">/*** R</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="co"># Example usage in R</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co">library(Rcpp)</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="co">library(RcppBessel)</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="co">library(Bessel)</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="co"># Source the C++ code</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="co">Rcpp::sourceCpp(&quot;test_bessel_k.cpp&quot;)</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="co"># Generate a sequence</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co">x &lt;- seq(1, 10, by = 1)</span></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co"># Compare results with Bessel package</span></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co">tmp &lt;- Bessel::BesselK(x, 2, FALSE, 1, 0)</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a><span class="co">all.equal(tmp, test_bessel_k(x, 2, FALSE, 0))</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co">*/</span></span></code></pre></div>
+</div>
+</div>
+<div id="besseli-bessel_i" class="section level2">
+<h2>BesselI (<code>bessel_i</code>)</h2>
+<div id="description-1" class="section level3">
+<h3>Description</h3>
+<p>Computes the modified Bessel function of the first kind.</p>
+</div>
+<div id="inputs-1" class="section level3">
+<h3>Inputs</h3>
+<ul>
+<li><code>z</code>: A numeric or complex vector of points at which to
+evaluate the Bessel function.</li>
+<li><code>nu</code>: A numeric value representing the order of the
+Bessel function.</li>
+<li><code>expon_scaled</code>: A logical value indicating whether to use
+the exponentially scaled form.</li>
+<li><code>verbose</code>: An integer specifying the verbosity level for
+error messages.</li>
+</ul>
+</div>
+<div id="output-1" class="section level3">
+<h3>Output</h3>
+<ul>
+<li>A numeric or complex vector (depending on the input) with the values
+of the <code>bessel_i</code> function.</li>
+</ul>
+</div>
+<div id="example-1" class="section level3">
+<h3>Example</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co">// test_bessel_i.cpp</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;Rcpp.h&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;RcppBessel.h&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">// [[Rcpp::depends(Rcpp, RcppBessel)]]</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">// [[Rcpp::export]]</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>SEXP test_bessel_i<span class="op">(</span>SEXP x<span class="op">,</span> <span class="dt">double</span> nu<span class="op">,</span> <span class="dt">bool</span> expon_scaled<span class="op">,</span> <span class="dt">int</span> verbose<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  SEXP z <span class="op">=</span> RcppBessel<span class="op">::</span>bessel_i<span class="op">(</span>x<span class="op">,</span> nu<span class="op">,</span> expon_scaled<span class="op">,</span> verbose<span class="op">);</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="cf">return</span> z<span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">/*** R</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co"># Example usage in R</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">library(Rcpp)</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">library(RcppBessel)</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">library(Bessel)</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co"># Source the C++ code</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">Rcpp::sourceCpp(&quot;test_bessel_i.cpp&quot;)</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co"># Generate a sequence</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">x &lt;- seq(-10, 10, by = 1)</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co"># Compare results with Bessel package</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">tmp &lt;- Bessel::BesselI(x, 2, FALSE, 1, 0)</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">all.equal(tmp, test_bessel_i(x, 2, FALSE, 0))</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">*/</span></span></code></pre></div>
+</div>
+</div>
+<div id="besselj-bessel_j" class="section level2">
+<h2>BesselJ (<code>bessel_j</code>)</h2>
+<div id="description-2" class="section level3">
+<h3>Description</h3>
+<p>Computes the Bessel function of the first kind.</p>
+</div>
+<div id="inputs-2" class="section level3">
+<h3>Inputs</h3>
+<ul>
+<li><code>z</code>: A numeric or complex vector of points at which to
+evaluate the Bessel function.</li>
+<li><code>nu</code>: A numeric value representing the order of the
+Bessel function.</li>
+<li><code>expon_scaled</code>: A logical value indicating whether to use
+the exponentially scaled form.</li>
+<li><code>verbose</code>: An integer specifying the verbosity level for
+error messages.</li>
+</ul>
+</div>
+<div id="output-2" class="section level3">
+<h3>Output</h3>
+<ul>
+<li>A numeric or complex vector (depending on the input) with the values
+of the <code>bessel_j</code> function.</li>
+</ul>
+</div>
+<div id="example-2" class="section level3">
+<h3>Example</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co">// test_bessel_j.cpp</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;Rcpp.h&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;RcppBessel.h&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">// [[Rcpp::depends(Rcpp, RcppBessel)]]</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">// [[Rcpp::export]]</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>SEXP test_bessel_j<span class="op">(</span>SEXP x<span class="op">,</span> <span class="dt">double</span> nu<span class="op">,</span> <span class="dt">bool</span> expon_scaled<span class="op">,</span> <span class="dt">int</span> verbose<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  SEXP z <span class="op">=</span> RcppBessel<span class="op">::</span>bessel_j<span class="op">(</span>x<span class="op">,</span> nu<span class="op">,</span> expon_scaled<span class="op">,</span> verbose<span class="op">);</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="cf">return</span> z<span class="op">;</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">/*** R</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co"># Example usage in R</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">library(Rcpp)</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">library(RcppBessel)</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">library(Bessel)</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co"># Source the C++ code</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">Rcpp::sourceCpp(&quot;test_bessel_j.cpp&quot;)</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co"># Generate a sequence</span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">x &lt;- seq(-10, 10, by = 1)</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co"># Compare results with Bessel package</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">tmp &lt;- Bessel::BesselJ(x, 2, FALSE, 1, 0)</span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">all.equal(tmp, test_bessel_j(x, 2, FALSE, 0))</span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">*/</span></span></code></pre></div>
+</div>
+</div>
+<div id="bessely-bessel_y" class="section level2">
+<h2>BesselY (<code>bessel_y</code>)</h2>
+<div id="description-3" class="section level3">
+<h3>Description</h3>
+<p>Computes the Bessel function of the second kind (Neumann
+function).</p>
+</div>
+<div id="inputs-3" class="section level3">
+<h3>Inputs</h3>
+<ul>
+<li><code>z</code>: A (strictly positive) numeric or complex vector of
+points at which to evaluate the Bessel function.</li>
+<li><code>nu</code>: A numeric value representing the order of the
+Bessel function.</li>
+<li><code>expon_scaled</code>: A logical value indicating whether to use
+the exponentially scaled form.</li>
+<li><code>verbose</code>: An integer specifying the verbosity level for
+error messages.</li>
+</ul>
+</div>
+<div id="output-3" class="section level3">
+<h3>Output</h3>
+<ul>
+<li>A numeric or complex vector (depending on the input) with the values
+of the <code>bessel_y</code> function.</li>
+</ul>
+</div>
+<div id="example-3" class="section level3">
+<h3>Example</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co">// test_bessel_y.cpp</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;Rcpp.h&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;RcppBessel.h&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">// [[Rcpp::depends(Rcpp, RcppBessel)]]</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">// [[Rcpp::export]]</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>SEXP test_bessel_y<span class="op">(</span>SEXP x<span class="op">,</span> <span class="dt">double</span> nu<span class="op">,</span> <span class="dt">bool</span> expon_scaled<span class="op">,</span> <span class="dt">int</span> verbose<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  SEXP z <span class="op">=</span> RcppBessel<span class="op">::</span>bessel_y<span class="op">(</span>x<span class="op">,</span> nu<span class="op">,</span> expon_scaled<span class="op">,</span> verbose<span class="op">);</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="cf">return</span> z<span class="op">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">/*** R</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co"># Example usage in R</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">library(Rcpp)</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">library(RcppBessel)</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">library(Bessel)</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co"># Source the C++ code</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">Rcpp::sourceCpp(&quot;test_bessel_y.cpp&quot;)</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co"># Generate a sequence</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">x &lt;- seq(-10, 10, by = 0.35)</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co"># skipping zero since bessel_y returns -Inf+0i whereas BesselY return -Inf+NaNi</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co"># Compare results with Bessel package</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">tmp &lt;- Bessel::BesselY(x, 2, FALSE, 1, 0)</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">all.equal(tmp, test_bessel_y(x, 2, FALSE, 0))</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="co">*/</span></span></code></pre></div>
+</div>
+</div>
+<div id="besselh-bessel_h" class="section level2">
+<h2>BesselH (<code>bessel_h</code>)</h2>
+<div id="description-4" class="section level3">
+<h3>Description</h3>
+<p>Computes the Hankel function (Bessel function of the third kind) of
+the first or second kind.</p>
+</div>
+<div id="inputs-4" class="section level3">
+<h3>Inputs</h3>
+<ul>
+<li><code>m</code>: An integer specifying the type of Hankel function.
+Must be either <code>1</code> (for the first kind) or <code>2</code>
+(for the second kind).</li>
+<li><code>z</code>: A numeric or complex vector of points at which to
+evaluate the Hankel function.</li>
+<li><code>nu</code>: A numeric value representing the order of the
+Hankel function.</li>
+<li><code>expon_scaled</code>: A logical value indicating whether to use
+the exponentially scaled form.</li>
+<li><code>verbose</code>: An integer specifying the verbosity level for
+error messages.</li>
+</ul>
+</div>
+<div id="output-4" class="section level3">
+<h3>Output</h3>
+<ul>
+<li>A complex vector with the values of the <code>bessel_h</code>
+function evaluated at the points in <code>z</code>.</li>
+</ul>
+</div>
+<div id="example-4" class="section level3">
+<h3>Example</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co">// test_bessel_h.cpp</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;Rcpp.h&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;RcppBessel.h&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">// [[Rcpp::depends(Rcpp, RcppBessel)]]</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">// [[Rcpp::export]]</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>SEXP test_bessel_h<span class="op">(</span><span class="dt">int</span> m<span class="op">,</span> SEXP x<span class="op">,</span> <span class="dt">double</span> nu<span class="op">,</span> <span class="dt">bool</span> expon_scaled<span class="op">,</span> <span class="dt">int</span> verbose<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  SEXP z <span class="op">=</span> RcppBessel<span class="op">::</span>bessel_h<span class="op">(</span>m<span class="op">,</span> x<span class="op">,</span> nu<span class="op">,</span> expon_scaled<span class="op">,</span> verbose<span class="op">);</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>  <span class="cf">return</span> z<span class="op">;</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">/*** R</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co"># Example usage in R</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">library(Rcpp)</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">library(RcppBessel)</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">library(Bessel)</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co"># Source the C++ code</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">Rcpp::sourceCpp(&quot;test_bessel_h.cpp&quot;)</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co"># Generate a sequence</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">x &lt;- seq(-10, 10, by = 0.35)</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co"># skipping again zero</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co"># Compare results with Bessel package</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">tmp &lt;- Bessel::BesselH(1, x, 2, FALSE, 1, 0)</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">all.equal(tmp, test_bessel_h(1, x, 2, FALSE, 0))</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">*/</span></span></code></pre></div>
+</div>
+</div>
+<div id="airya-airy_a" class="section level2">
+<h2>AiryA (<code>airy_a</code>)</h2>
+<div id="description-5" class="section level3">
+<h3>Description</h3>
+<p>Computes the Airy function <em>Ai</em> for real or complex
+inputs.</p>
+</div>
+<div id="inputs-5" class="section level3">
+<h3>Inputs</h3>
+<ul>
+<li><code>z</code>: A numeric or complex vector of points at which to
+evaluate the Airy function.</li>
+<li><code>deriv</code>: An integer indicating whether to compute the
+function itself (<code>0</code>) or its first derivative
+(<code>1</code>). Defaults to <code>0</code>.</li>
+<li><code>expon_scaled</code>: A logical value indicating whether to use
+the exponentially scaled form of the Airy function. Defaults to
+<code>FALSE</code>.</li>
+<li><code>verbose</code>: An integer specifying the verbosity level for
+error messages.</li>
+</ul>
+</div>
+<div id="output-5" class="section level3">
+<h3>Output</h3>
+<ul>
+<li>A numeric or complex vector (depending on the input) with the values
+of the <code>airy_a</code> function evaluated at the points in
+<code>z</code>.</li>
+</ul>
+</div>
+<div id="example-5" class="section level3">
+<h3>Example</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co">// test_airy_a.cpp</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;Rcpp.h&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;RcppBessel.h&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">// [[Rcpp::depends(Rcpp, RcppBessel)]]</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">// [[Rcpp::export]]</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>SEXP test_airy_a<span class="op">(</span>SEXP x<span class="op">,</span> <span class="dt">int</span> deriv <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">bool</span> expon_scaled <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">int</span> verbose <span class="op">=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  SEXP z <span class="op">=</span> RcppBessel<span class="op">::</span>airy_a<span class="op">(</span>x<span class="op">,</span> deriv<span class="op">,</span> expon_scaled<span class="op">,</span> verbose<span class="op">);</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  <span class="cf">return</span> z<span class="op">;</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">/*** R</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co"># Example usage in R</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">library(Rcpp)</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">library(RcppBessel)</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co"># Source the C++ code</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">Rcpp::sourceCpp(&quot;test_airy_a.cpp&quot;)</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co"># Generate a sequence</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">x &lt;- seq(-10, 10, by = 1)</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">tmp &lt;- Bessel::AiryA(x, 1)</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">all.equal(tmp, test_airy_a(x, 1, FALSE, 0))</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">*/</span></span></code></pre></div>
+</div>
+</div>
+<div id="airyb-airy_b" class="section level2">
+<h2>AiryB (<code>airy_b</code>)</h2>
+<div id="description-6" class="section level3">
+<h3>Description</h3>
+<p>Computes the Airy function <em>Bi</em> for real or complex
+inputs.</p>
+</div>
+<div id="inputs-6" class="section level3">
+<h3>Inputs</h3>
+<ul>
+<li><code>z</code>: A numeric or complex vector of points at which to
+evaluate the Airy function.</li>
+<li><code>deriv</code>: An integer indicating whether to compute the
+function itself (<code>0</code>) or its first derivative
+(<code>1</code>). Defaults to <code>0</code>.</li>
+<li><code>expon_scaled</code>: A logical value indicating whether to use
+the exponentially scaled form of the Airy function. Defaults to
+<code>FALSE</code>.</li>
+<li><code>verbose</code>: An integer specifying the verbosity level for
+error messages.</li>
+</ul>
+</div>
+<div id="output-6" class="section level3">
+<h3>Output</h3>
+<ul>
+<li>A numeric or complex vector (depending on the input) with the values
+of the <code>airy_b</code> function evaluated at the points in
+<code>z</code>.</li>
+</ul>
+</div>
+<div id="example-6" class="section level3">
+<h3>Example</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co">// test_airy_b.cpp</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;Rcpp.h&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;RcppBessel.h&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">// [[Rcpp::depends(Rcpp, RcppBessel)]]</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">// [[Rcpp::export]]</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>SEXP test_airy_b<span class="op">(</span>SEXP x<span class="op">,</span> <span class="dt">int</span> deriv <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> <span class="dt">bool</span> expon_scaled <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">int</span> verbose <span class="op">=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  SEXP z <span class="op">=</span> RcppBessel<span class="op">::</span>airy_b<span class="op">(</span>x<span class="op">,</span> deriv<span class="op">,</span> expon_scaled<span class="op">,</span> verbose<span class="op">);</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="cf">return</span> z<span class="op">;</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">/*** R</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co"># Example usage in R</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">library(Rcpp)</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">library(RcppBessel)</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co"># Source the C++ code</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">Rcpp::sourceCpp(&quot;test_airy_b.cpp&quot;)</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co"># Generate a sequence</span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">x &lt;- seq(-10, 10, by = 1)</span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">tmp &lt;- Bessel::AiryB(x, 1)</span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">all.equal(tmp, test_airy_b(x, 1, FALSE, 0))</span></span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">*/</span></span></code></pre></div>
+</div>
+</div>
+<div id="an-example-with-rcpparmadillo-conversion" class="section level2">
+<h2>An Example with RcppArmadillo Conversion</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;RcppArmadillo.h&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;RcppBessel.h&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">// [[Rcpp::depends(RcppArmadillo, RcppBessel)]]</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">// [[Rcpp::export]]</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>SEXP test_bessel_k<span class="op">(</span><span class="at">const</span> arma<span class="op">::</span>vec<span class="op">&amp;</span> x<span class="op">,</span> <span class="dt">double</span> nu<span class="op">,</span> <span class="dt">bool</span> expon_scaled <span class="op">=</span> <span class="kw">false</span><span class="op">,</span> <span class="dt">int</span> verbose <span class="op">=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="co">// Convert arma::vec to Rcpp::NumericVector</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  Rcpp<span class="op">::</span>NumericVector rx <span class="op">=</span> Rcpp<span class="op">::</span>wrap<span class="op">(</span>x<span class="op">);</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  <span class="co">// Call the BesselK function</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  SEXP z <span class="op">=</span> RcppBessel<span class="op">::</span>bessel_k<span class="op">(</span>rx<span class="op">,</span> nu<span class="op">,</span> expon_scaled<span class="op">,</span> verbose<span class="op">);</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>  <span class="co">// Check if the result is complex</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>Rcpp<span class="op">::</span>is<span class="op">&lt;</span>Rcpp<span class="op">::</span>ComplexVector<span class="op">&gt;(</span>z<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>    Rcpp<span class="op">::</span>ComplexVector cz<span class="op">(</span>z<span class="op">);</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>    arma<span class="op">::</span>cx_vec result <span class="op">=</span> Rcpp<span class="op">::</span>as<span class="op">&lt;</span>arma<span class="op">::</span>cx_vec<span class="op">&gt;(</span>cz<span class="op">);</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>    <span class="cf">return</span> Rcpp<span class="op">::</span>wrap<span class="op">(</span>result<span class="op">);</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>  <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>    Rcpp<span class="op">::</span>NumericVector rz<span class="op">(</span>z<span class="op">);</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>    arma<span class="op">::</span>vec result <span class="op">=</span> Rcpp<span class="op">::</span>as<span class="op">&lt;</span>arma<span class="op">::</span>vec<span class="op">&gt;(</span>rz<span class="op">);</span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>    <span class="cf">return</span> Rcpp<span class="op">::</span>wrap<span class="op">(</span>result<span class="op">);</span></span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a><span class="co">/*** R</span></span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a><span class="co"># Example usage in R</span></span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a><span class="co">library(Rcpp)</span></span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a><span class="co">library(RcppBessel)</span></span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a><span class="co">library(Bessel)</span></span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a><span class="co">library(RcppArmadillo)</span></span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a></span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a><span class="co"># Source the C++ code</span></span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a><span class="co">#Rcpp::sourceCpp(&quot;test_bessel_k.cpp&quot;)</span></span>
+<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a></span>
+<span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a><span class="co"># Generate a sequence</span></span>
+<span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a><span class="co">x &lt;- seq(1, 10, by = 1)</span></span>
+<span id="cb8-34"><a href="#cb8-34" tabindex="-1"></a></span>
+<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a><span class="co"># Compare results with Bessel package</span></span>
+<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a><span class="co">tmp &lt;- Bessel::BesselK(x, 2, FALSE, 1, 0)</span></span>
+<span id="cb8-37"><a href="#cb8-37" tabindex="-1"></a><span class="co">all.equal(tmp, as.vector(test_bessel_k(x, 2, FALSE, 0)))</span></span>
+<span id="cb8-38"><a href="#cb8-38" tabindex="-1"></a><span class="co">*/</span></span></code></pre></div>
+</div>
+</div>
+<div id="timing-tests" class="section level1">
+<h1>Timing Tests</h1>
+<p>The following code and output provides a quick timing test between
+the <code>Bessel</code> and <code>RcppBessel</code> packages for the
+<code>bessel_k</code> function.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">library</span>(microbenchmark)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">library</span>(Bessel)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="fu">library</span>(RcppBessel)</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">20</span>, <span class="dv">20</span>, <span class="at">by =</span> <span class="fl">0.001</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">microbenchmark</span>(<span class="fu">BesselK</span>(z, <span class="dv">2</span>, <span class="cn">TRUE</span>), <span class="fu">bessel_k</span>(z, <span class="dv">2</span>, <span class="cn">TRUE</span>), <span class="at">times =</span> <span class="dv">5</span><span class="dt">L</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; Warning in microbenchmark(BesselK(z, 2, TRUE), bessel_k(z, 2, TRUE), times =</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; 5L): less accurate nanosecond times to avoid potential integer overflows</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="fu">print</span>(b)</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; Unit: milliseconds</span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt;                  expr      min       lq     mean   median       uq      max</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt;   BesselK(z, 2, TRUE) 94.64010 95.94836 96.72466 96.09502 98.44621 98.49360</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt;  bessel_k(z, 2, TRUE) 15.50489 15.53982 15.55122 15.54503 15.55532 15.61104</span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt;  neval</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt;      5</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt;      5</span></span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
